@@ -2,6 +2,7 @@ package es.viedma.blowme;
 
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.RectShape;
@@ -13,7 +14,9 @@ public class GameThread implements Runnable {
 	private SurfaceHolder mSurfaceHolder;
 	private Handler mHandler;
 	private ShapeDrawable ship, goal;
-	
+	private Microphone mic;
+
+	private PaintDrawable mBackground;
 	private Thread mThread;	
 //	private State mState = State.INIT;
 
@@ -33,8 +36,9 @@ public class GameThread implements Runnable {
     	mSurfaceHolder = surfaceHolder;
 		if (mThread == null) {
 //			Level.setupLevel(this, mLevel);
-//			createBackground(width, height);
+			createBackground(width, height);
 			initShapes(width, height);
+			mic = new Microphone();
 			mThread = new Thread(this, "GameThread");
 			mThread.start();
 		} else {
@@ -56,8 +60,8 @@ public class GameThread implements Runnable {
 					try {
 						// updateAnimations();
 						// updateSound();
-				        ship.draw(canvas);
-				        goal.draw(canvas);
+						updateMic();
+				        updateGraphics(canvas);
 					} finally {
 						mSurfaceHolder.unlockCanvasAndPost(canvas);
 					}
@@ -70,11 +74,11 @@ public class GameThread implements Runnable {
         ship = new ShapeDrawable(new OvalShape());
         ship.getPaint().setColor(0xff74AC23);
         ship.setBounds(width/2 -25,height - 100,width/2 + 25,height - 50);
-//        ship.setBounds(0,0,50,50);
+
         goal = new ShapeDrawable(new RectShape());
         goal.getPaint().setColor(0xffff0000);
         goal.setBounds(width/2 - 50, 0, width/2 + 50, 25);
-//        ship.setBounds(0,0,500,500);
+
 	}
 	
 	public void moveShape(int x, int y){
@@ -92,4 +96,29 @@ public class GameThread implements Runnable {
     	}
     }
 
+	public void updateMic(){
+		int level = mic.getLevel();
+		moveShape(0, level);
+	}
+
+	private void createBackground(int width, int height) {
+		// Adjust width/height to game ratio to avoid invisible walls
+    	Rect bounds = new Rect(0, 0, width, height);
+    	if (width * 3 > height * 2) {
+    		bounds.left = (width - height * 2 / 3) / 2;
+    		bounds.right -= bounds.left;
+    	} else if (width * 3 < height * 2) {
+    		bounds.top = (height - width * 3 / 2) / 2;
+			bounds.bottom -= bounds.top;
+    	}
+
+		mBackground = new PaintDrawable(0xff4646ff);
+		mBackground.setBounds(bounds);
+	}
+	
+	private void updateGraphics(Canvas canvas) {
+		mBackground.draw(canvas);
+		ship.draw(canvas);
+        goal.draw(canvas);
+	}
 }

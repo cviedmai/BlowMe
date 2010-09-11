@@ -29,6 +29,7 @@ public class Microphone {
 	
 	public int getLevel(){
 		level = recorder.getMaxAmplitude();
+		System.out.println(level);
 		level = (level/2000)%20;
 		return level;
 	}
