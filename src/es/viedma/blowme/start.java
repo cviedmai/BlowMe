@@ -1,66 +1,57 @@
 package es.viedma.blowme;
 
-import java.io.IOException;
-
 import android.app.Activity;
-import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Handler.Callback;
 import android.util.DisplayMetrics;
-import android.widget.TextView;
 
 public class start extends Activity {
     /** Called when the activity is first created. */
-    TextView tv;
-    MediaRecorder recorder;
     BlowView bv;
+    Microphone micro;
+	private GameThread mGameThread;
+    
+    private Handler mHandler = new Handler(new Callback() {
+		@Override
+		public boolean handleMessage(Message msg) {
+			// Display messages on top of the game view
+//			switch (msg.what) {
+//			case GameThread.START:
+//				hideText();
+//				break;
+//			case GameThread.WIN:
+//				showText(R.string.well_done, R.string.next_level);
+//				break;
+//			case GameThread.COMPLETED:
+//				showText(R.string.congratulations, R.string.last_game);
+//				break;
+//			case GameThread.GAME_OVER:
+//				showText(R.string.game_over, R.string.restart_game);
+//				break;
+//			case GameThread.PAUSED:
+//				showText(R.string.paused, R.string.resume_game);
+//			}
+			return true;
+		}
+	});
     
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.main);
-        
-        tv = new TextView(this);
-        this.setContentView(tv);
-        tv.setText("Hello, Android");
-        recorder = new MediaRecorder();
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        recorder.setOutputFile("/dev/null");
-       try {
-			recorder.prepare();
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        recorder.start();
 
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+//        DisplayMetrics metrics = new DisplayMetrics();
+//        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+//        , metrics.widthPixels, metrics.heightPixels
         // default screen size (nexus one): 533x300
-        bv = new BlowView(this, metrics.widthPixels, metrics.heightPixels);
-        setContentView(bv);
-
-        MyCount counter = new MyCount(30000, 150);
-        counter.start();
+        mGameThread = new GameThread(mHandler);
+        bv = new BlowView(this);
+        bv.setGameThread(mGameThread);
+        setContentView(bv);        
+//        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+//        Accelerometer.start(sensorManager);
+        
         
     }
-    public class MyCount extends CountDownTimer {
-        public MyCount(long millisInFuture, long countDownInterval) {
-          super(millisInFuture, countDownInterval);
-        }
-        public void onFinish() {
-          tv.setText("Done!");
-        }
-        public void onTick(long millisUntilFinished) {
-        	int level = recorder.getMaxAmplitude();
-            tv.setText("Value:" + level + "Left: " + millisUntilFinished / 1000);
-            bv.moveShape(0, (level/2000)%20);
-            setContentView(bv);
-            System.out.println(level%500);
-        }
-       }
+
 }

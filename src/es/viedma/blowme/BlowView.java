@@ -1,52 +1,48 @@
 package es.viedma.blowme;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.OvalShape;
-import android.graphics.drawable.shapes.RectShape;
-import android.view.View;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 
-public class BlowView extends View {
+public class BlowView extends SurfaceView implements SurfaceHolder.Callback{
 	
-    private ShapeDrawable ship, goal;
-    
-    public BlowView(Context context, int width, int height) {
-        super(context);
-
-        ship = new ShapeDrawable(new OvalShape());
-        ship.getPaint().setColor(0xff74AC23);
-        ship.setBounds(width/2 -25,height - 100,width/2 + 25,height - 50);
-        
-        goal = new ShapeDrawable(new RectShape());
-        goal.getPaint().setColor(0xffff0000);
-        goal.setBounds(width/2 - 50, 0, width/2 + 50, 25);
-
+	private GameThread mGameThread;
+	
+    public BlowView(Context context) {
+        super(context);        
+        getHolder().addCallback(this);
     }
     
-    public void moveShape(int x, int y){
-    	Rect bounds = ship.copyBounds();
-    	bounds.left   -= x;
-    	bounds.right  -= x;
-    	bounds.top    -= y;
-    	bounds.bottom -= y;
-    	
-    	if (bounds.top <= 25){
-    		goal.getPaint().setColor(0xff00ff00);
-    	}
-    	else{
-    		ship.setBounds(bounds);
-    	}
-    }
-
 //    public void refresh(){
 //    	mDrawable.draw(canvas)
 //    }
-    protected void onDraw(Canvas canvas) {
-        ship.draw(canvas);
-        goal.draw(canvas);
-    }
+//    protected void onDraw(Canvas canvas) {
+//        ship.draw(canvas);
+//        goal.draw(canvas);
+//    }
+    
+    public void setGameThread(GameThread gameThread) {
+		mGameThread = gameThread;
+	}
+@Override
+public void surfaceChanged(SurfaceHolder holder, int format, int width,
+		int height) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void surfaceCreated(SurfaceHolder holder) {
+	Rect frame = holder.getSurfaceFrame();
+//	SizeUtil.setScreenSize(frame.width(), frame.height());			
+    mGameThread.start(holder, frame.width(), frame.height());
+}
+
+public void surfaceDestroyed(SurfaceHolder holder) {
+	// TODO Auto-generated method stub
+	
+}
 }
 
 
