@@ -1,6 +1,7 @@
 package es.viedma.blowme;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,7 +9,6 @@ import android.os.Message;
 import android.os.Handler.Callback;
 
 public class start extends Activity {
-    /** Called when the activity is first created. */
     BlowView bv;
     Microphone micro;
 	private GameThread mGameThread;
@@ -40,11 +40,8 @@ public class start extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        DisplayMetrics metrics = new DisplayMetrics();
-//        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-//        , metrics.widthPixels, metrics.heightPixels
-        // default screen size (nexus one): 533x300
-        mGameThread = new GameThread(mHandler);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        mGameThread = new GameThread(mHandler, this);
         bv = new BlowView(this);
         bv.setGameThread(mGameThread);
         setContentView(bv);        
