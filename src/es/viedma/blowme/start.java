@@ -1,11 +1,11 @@
 package es.viedma.blowme;
 
 import android.app.Activity;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Handler.Callback;
-import android.util.DisplayMetrics;
 
 public class start extends Activity {
     /** Called when the activity is first created. */
@@ -48,10 +48,9 @@ public class start extends Activity {
         bv = new BlowView(this);
         bv.setGameThread(mGameThread);
         setContentView(bv);        
-//        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-//        Accelerometer.start(sensorManager);
-        
-        
+        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        Accelerometer.start(sensorManager);
+
     }
 
 }

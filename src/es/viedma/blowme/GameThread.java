@@ -15,6 +15,7 @@ public class GameThread implements Runnable {
 	private Handler mHandler;
 	private ShapeDrawable ship, goal;
 	private Microphone mic;
+	private int SCREEN_WIDTH, SCREEN_HEIGHT;
 
 	private PaintDrawable mBackground;
 	private Thread mThread;	
@@ -34,10 +35,12 @@ public class GameThread implements Runnable {
     
     public void start(SurfaceHolder surfaceHolder, int width, int height) {
     	mSurfaceHolder = surfaceHolder;
+    	SCREEN_WIDTH = width;
+    	SCREEN_HEIGHT = height;
 		if (mThread == null) {
 //			Level.setupLevel(this, mLevel);
-			createBackground(width, height);
-			initShapes(width, height);
+			createBackground();
+			initShapes();
 			mic = new Microphone();
 			mThread = new Thread(this, "GameThread");
 			mThread.start();
@@ -61,6 +64,7 @@ public class GameThread implements Runnable {
 						// updateAnimations();
 						// updateSound();
 						updateMic();
+						updateAccel();
 				        updateGraphics(canvas);
 					} finally {
 						mSurfaceHolder.unlockCanvasAndPost(canvas);
@@ -70,23 +74,30 @@ public class GameThread implements Runnable {
         }
 	}
 	
-	public void initShapes(int width, int height){
+	public void initShapes(){
         ship = new ShapeDrawable(new OvalShape());
         ship.getPaint().setColor(0xff74AC23);
-        ship.setBounds(width/2 -25,height - 100,width/2 + 25,height - 50);
+        ship.setBounds(SCREEN_WIDTH/2 -25,SCREEN_HEIGHT - 100,SCREEN_WIDTH/2 + 25,SCREEN_HEIGHT - 50);
 
         goal = new ShapeDrawable(new RectShape());
         goal.getPaint().setColor(0xffff0000);
-        goal.setBounds(width/2 - 50, 0, width/2 + 50, 25);
+        goal.setBounds(SCREEN_WIDTH/2 - 50, 0, SCREEN_WIDTH/2 + 50, 25);
 
 	}
 	
 	public void moveShape(int x, int y){
     	Rect bounds = ship.copyBounds();
-    	bounds.left   += x;
-    	bounds.right  += x;
-    	bounds.top    -= y;
-    	bounds.bottom -= y;
+    	int new_left = bounds.left + x;
+    	int new_right = bounds.right + x;
+    	int new_top = bounds.top - y;
+    	int new_bottom = bounds.bottom - y;
+    	
+    	if (new_left >= 0 && new_right <= SCREEN_WIDTH && new_top >= 0 && new_bottom <= SCREEN_HEIGHT){
+	    	bounds.left   += x;
+	    	bounds.right  += x;
+	    	bounds.top    -= y;
+	    	bounds.bottom -= y;
+    	}
     	
     	if (bounds.top <= 25){
     		goal.getPaint().setColor(0xff00ff00);
@@ -100,15 +111,20 @@ public class GameThread implements Runnable {
 		int level = mic.getLevel();
 		moveShape(0, level);
 	}
+	
+	public void updateAccel(){
+		float x = Accelerometer.getX();
+		moveShape(Math.round(5*x), 0);
+	}
 
-	private void createBackground(int width, int height) {
+	private void createBackground() {
 		// Adjust width/height to game ratio to avoid invisible walls
-    	Rect bounds = new Rect(0, 0, width, height);
-    	if (width * 3 > height * 2) {
-    		bounds.left = (width - height * 2 / 3) / 2;
+    	Rect bounds = new Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    	if (SCREEN_WIDTH * 3 > SCREEN_HEIGHT * 2) {
+    		bounds.left = (SCREEN_WIDTH - SCREEN_HEIGHT * 2 / 3) / 2;
     		bounds.right -= bounds.left;
-    	} else if (width * 3 < height * 2) {
-    		bounds.top = (height - width * 3 / 2) / 2;
+    	} else if (SCREEN_WIDTH * 3 < SCREEN_HEIGHT * 2) {
+    		bounds.top = (SCREEN_HEIGHT - SCREEN_WIDTH * 3 / 2) / 2;
 			bounds.bottom -= bounds.top;
     	}
 
