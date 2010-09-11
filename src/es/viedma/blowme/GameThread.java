@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
+import android.graphics.drawable.shapes.RectShape;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.view.SurfaceHolder;
@@ -17,7 +18,7 @@ public class GameThread implements Runnable {
 	private SurfaceHolder mSurfaceHolder;
 	private Handler mHandler;
 //	private ShapeDrawable ship, beer;
-	private ShapeDrawable ship;
+	private ShapeDrawable ship, ob1, ob2;
 	private Bitmap beer, peter;
 	private Microphone mic;
 	private int SCREEN_WIDTH, SCREEN_HEIGHT;
@@ -82,7 +83,14 @@ public class GameThread implements Runnable {
 
         peter =  BitmapFactory.decodeResource(mContext.getResources(), R.drawable.peter);
         beer  =  BitmapFactory.decodeResource(mContext.getResources(), R.drawable.beer);
-        
+
+        ob1 = new ShapeDrawable(new RectShape());
+        ob2 = new ShapeDrawable(new RectShape());
+        ob1.getPaint().setColor(0xff555555);
+        ob2.getPaint().setColor(0xff555555);
+        ob1.setBounds(0,SCREEN_HEIGHT/3,200,SCREEN_HEIGHT/3+25);
+        ob2.setBounds(SCREEN_WIDTH - 200,2*SCREEN_HEIGHT/3,SCREEN_WIDTH,2*SCREEN_HEIGHT/3 +25);
+
 //        beer = res.getDrawable(R.drawable.beer);
 //        beer = new ShapeDrawable(new RectShape());
 //        beer.getPaint().setColor(0xff740000);
@@ -128,22 +136,33 @@ public class GameThread implements Runnable {
 		mBackground.draw(canvas);
 		canvas.drawBitmap(beer, SCREEN_WIDTH/2 - 38, 10, null);
 		ship.draw(canvas);
+		ob1.draw(canvas);
+		ob2.draw(canvas);
 		
 	}
 		
 	private void resetGraphics(Canvas canvas) {        
 		ship.setBounds(SCREEN_WIDTH/2 -25,SCREEN_HEIGHT - 100,SCREEN_WIDTH/2 + 25,SCREEN_HEIGHT - 50);
-		canvas.drawBitmap(peter, SCREEN_WIDTH/2 - 100, SCREEN_HEIGHT/2 - 135, null);
-	    //updateGraphics(canvas);    
+	    updateGraphics(canvas);    
 	}
 	
 	private void checkCollisions(Canvas canvas){
-		Rect bounds = ship.copyBounds();
-	    if (bounds.top <= 25 && bounds.left <= SCREEN_WIDTH/2+50 && bounds.left >= SCREEN_WIDTH/2-50){
+		Rect b_ship = ship.copyBounds();
+//		Rect b_ob1 = ob1.copyBounds();
+//		Rect b_ob2 = ob2.copyBounds();
+//		if (b_ship.top <= b_ob1.bottom && b_ship.left <= b_ob1.right){
+//			// Hits ob1
+//	    	resetGraphics(canvas);
+//		}
+//		if (){
+//			//Hits ob2
+//	    	resetGraphics(canvas);
+//		}
+	    if (b_ship.top <= 25 && b_ship.left <= SCREEN_WIDTH/2+50 && b_ship.left >= SCREEN_WIDTH/2-50){
+	    	// Wins!
     		ship.getPaint().setColor(0xff00ff00);
     		canvas.drawBitmap(peter, SCREEN_WIDTH/2 - 100, SCREEN_HEIGHT/2 - 135, null);
     		mp.start();
-	    	//resetGraphics(canvas);
     	}		
 	}
 }
